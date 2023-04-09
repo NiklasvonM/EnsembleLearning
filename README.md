@@ -3,17 +3,14 @@
 ## Usage
 
 ```python
-from ensemble-learning import local_weights
+from ensemble_learning.local_weights import local_weights
 
 predictions = [1, 3, 5, 7, 9]
-y = 5
-lambda_val = 0.1
+target = 5
 
-weights = local_weights(predictions, y, lambda_val)
+weights = local_weights(predictions, target)
 print("Weights:", weights)
 ```
-
-
 
 ## Examples
 
@@ -21,6 +18,5 @@ There is an example demonstrating how to use the module with time series forecas
 
 ```bash
 pip install ensemble-learning[examples]
-python examples/time_series_forecast_example.py
+python examples/time_series_local_weights.py
 ```
-
