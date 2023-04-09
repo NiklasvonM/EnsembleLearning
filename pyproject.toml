@@ -26,4 +26,7 @@ dynamic = ["version"]
 examples = [
     "statsmodels",
     "matplotlib",
+    "prophet",
+    "plotly",
+    "pandas"
 ]

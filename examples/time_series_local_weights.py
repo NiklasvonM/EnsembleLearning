@@ -1,12 +1,17 @@
+import sys
+from pathlib import Path
+
+src_path = Path(__file__).resolve().parent.parent / 'src'
+sys.path.insert(0, str(src_path))
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-from pmdarima import auto_arima
+from statsmodels.tsa.arima.model import ARIMA
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
-from fbprophet import Prophet
-
-from weighted_sum_opt import weighted_sum_optimization
+from prophet import Prophet
+from ensemble_learning.local_weights import local_weights
 
 # Load Air Passengers dataset
 url = "https://raw.githubusercontent.com/jbrownlee/Datasets/master/airline-passengers.csv"
@@ -17,21 +22,28 @@ data.index.freq = "MS"
 train = data[:int(0.75 * len(data))]
 test = data[int(0.75 * len(data)):]
 
-# Train ARIMA model
-arima_model = auto_arima(train, seasonal=True, m=12)
-arima_forecast = arima_model.predict(n_periods=len(test))
+# Fit the ARIMA model
+arima_model = ARIMA(train, order=(5,1,0))
+arima_model_fit = arima_model.fit()
+arima_forecast = arima_model_fit.forecast(len(test))
 
 # Train Exponential Smoothing model
 ets_model = ExponentialSmoothing(train, seasonal="multiplicative", seasonal_periods=12).fit()
 ets_forecast = ets_model.forecast(len(test))
 
-# Train Prophet model
-prophet_data = train.reset_index().rename(columns={"Month": "ds", "Passengers": "y"})
-prophet_model = Prophet(seasonality_mode="multiplicative", yearly_seasonality=True).fit(prophet_data)
-prophet_forecast = prophet_model.predict(pd.DataFrame(test.index, columns=["ds"]))["yhat"].values
+# Fit the Prophet model
+prophet_model = Prophet()
+prophet_df = pd.DataFrame({'ds': train.index, 'y': [y[0] for y in train.values]})
+prophet_model_fit = prophet_model.fit(prophet_df)
+prophet_forecast = prophet_model_fit.predict(prophet_model_fit.make_future_dataframe(periods=len(test), freq='MS'))['yhat'][len(train):]
 
 # Apply weighted sum algorithm
-weights = np.array([weighted_sum_optimization([arima, ets, prophet], y) for arima, ets, prophet, y in zip(arima_forecast, ets_forecast, prophet_forecast, test["Passengers"].values)])
+weights = np.array(
+    [local_weights([arima, ets, prophet], y) for arima, ets, prophet, y in zip(
+    arima_forecast,
+    ets_forecast,
+    prophet_forecast,
+    test["Passengers"].values)])
 
 # Visualize weights
 plt.figure(figsize=(10, 6))
@@ -42,4 +54,14 @@ plt.xlabel("Date")
 plt.ylabel("Weights")
 plt.title("Weights for Different Models")
 plt.legend()
+plt.show()
+
+plt.figure(figsize=(10, 6))
+plt.plot([0, 1], [1, 0], 'r-')
+plt.plot(weights[:, 0], weights[:, 1], "o")
+plt.xlabel("weight ARIMA")
+plt.ylabel("weight Exponential Smoothing")
+plt.title("Weights for Different Models")
+plt.xlim([-0.1, 1.1])
+plt.ylim([-0.1, 1.1])
 plt.show()
