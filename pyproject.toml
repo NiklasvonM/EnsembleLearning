@@ -1,0 +1,29 @@
+[build-system]
+requires = [
+    "setuptools",
+    "wheel"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ensemble_learning"
+#version = "0.1.0"
+description = ""
+authors = [
+    {name = "Niklas von Moers", email = "niklasvmoers@protonmail.com"},
+]
+readme = "README.md"
+license = {text = "MIT"}
+classifiers = ["Programming Language :: Python :: 3"]
+dependencies = [
+    "numpy",
+    "cvxpy",
+    "scikit-learn"
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+examples = [
+    "statsmodels",
+    "matplotlib",
+]
