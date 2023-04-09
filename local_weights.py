@@ -40,6 +40,9 @@ def local_weights(predictions, y, regularization_parameter):
     scaled_predictions = [(x - min_value) / range_values for x in predictions]
 
     weights = cp.Variable(k)
+    # Set the initial value of weights to the uniform distribution for a warm start.
+    weights.value = np.full(k, 1/k)
+
     absolute_error = cp.abs(cp.sum(weights * scaled_predictions) - 1)
     penalty_term = cp.sum(cp.multiply(weights, cp.abs(scaled_predictions - 1)))
     objective = cp.Minimize(absolute_error + regularization_parameter * penalty_term / range_values)
