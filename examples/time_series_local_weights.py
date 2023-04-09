@@ -45,16 +45,27 @@ weights = np.array(
     prophet_forecast,
     test["Passengers"].values)])
 
+
+figure, axis = plt.subplots(2)
+
+# Make a plot of the actual and predicted values for each model
+axis[0].plot(test.index, arima_forecast, label='ARIMA')
+axis[0].plot(test.index, ets_forecast, label='Exponential smoothing')
+axis[0].plot(test.index, prophet_forecast, label='Prophet')
+axis[0].plot(test.index, test.values, label='Actual')
+axis[1].set_ylabel("Predictions")
+axis[0].set_title("Predictions for Different Models")
+axis[0].legend()
+
 # Visualize weights
-plt.figure(figsize=(10, 6))
-plt.plot(test.index, weights[:, 0], label="ARIMA")
-plt.plot(test.index, weights[:, 1], label="Exponential Smoothing")
-plt.plot(test.index, weights[:, 2], label="Prophet")
-plt.xlabel("Date")
-plt.ylabel("Weights")
-plt.title("Weights for Different Models")
-plt.legend()
-plt.show()
+axis[1].plot(test.index, weights[:, 0], label="ARIMA")
+axis[1].plot(test.index, weights[:, 1], label="Exponential Smoothing")
+axis[1].plot(test.index, weights[:, 2], label="Prophet")
+axis[1].set_xlabel("Date")
+axis[1].set_ylabel("Weights")
+axis[1].set_title("Weights for Different Models")
+axis[1].legend()
+plt.show(block=False)
 
 plt.figure(figsize=(10, 6))
 plt.plot([0, 1], [1, 0], 'r-')
@@ -64,4 +75,4 @@ plt.ylabel("weight Exponential Smoothing")
 plt.title("Weights for Different Models")
 plt.xlim([-0.1, 1.1])
 plt.ylim([-0.1, 1.1])
-plt.show()
+plt.show(block=True)
