@@ -1,26 +1,51 @@
+import cvxpy as cp
 import numpy as np
-from scipy.optimize import linprog
 
-def local_weights(predictions, y, lambda_val=0.1, gamma=1.0):
-    assert y > 0, "The target value y must be positive."
+def local_weights(predictions, y, regularization_parameter):
+    """
+    Computes the optimal weights for combining the predictions to match the target value y,
+    using linear optimization with a regularization term.
+
+    The optimization problem is formulated as follows:
+
+    Let x_i' = (x_i - min(x_1,...,x_k,y)) / (max(x_1,...,x_k,y) - min(x_1,...,x_k,y))
+    Let y' = (y - min(x_1,...,x_k,y)) / (max(x_1,...,x_k,y) - min(x_1,...,x_k,y))
+
+    min  | w_1 * x_1' + ... + w_k * x_k' - y' |
+         + lambda * (sum_i=1^k w_i * |x_i' - y'|) / (max(x_1,...,x_k,y) - min(x_1,...,x_k,y))
+
+    subject to w_i >= 0, for all i = 1, ..., k
+               sum(w_i) = 1
+
+    where x_i are the predictions, y is the target value, and lambda is the regularization parameter.
+
+    Args:
+        predictions (list[float]): A list of k predictions.
+        y (float): The target value.
+        regularization_parameter (float): The regularization parameter (lambda).
+
+    Returns:
+        np.ndarray: A numpy array of the optimal weights.
+    """
+
     k = len(predictions)
-    normalized_predictions = predictions / y
 
-    # Objective function coefficients
-    c = np.concatenate((np.zeros(k), np.ones(k), [1])) + gamma * np.abs(normalized_predictions - 1)
+    # Return uniform weights if all predictions and y coincide
+    if len(set(predictions + [y])) == 1:
+        return np.full(k, 1/k)
 
-    # Constraint matrix
-    A_eq = np.concatenate((np.ones((1, k)), np.eye(k)), axis=1)
-    A_ub = np.concatenate((np.eye(k), np.eye(k), np.zeros((k, 1))), axis=1)
+    min_value = min(predictions + [y])
+    max_value = max(predictions + [y])
+    range_values = max_value - min_value
+    scaled_predictions = [(x - min_value) / range_values for x in predictions]
 
-    # Constraint vectors
-    b_eq = np.array([1])
-    b_ub = np.zeros(k)
+    weights = cp.Variable(k)
+    absolute_error = cp.abs(cp.sum(weights * scaled_predictions) - 1)
+    penalty_term = cp.sum(cp.multiply(weights, cp.abs(scaled_predictions - 1)))
+    objective = cp.Minimize(absolute_error + regularization_parameter * penalty_term / range_values)
 
-    # Bounds for variables
-    bounds = [(0, None) for _ in range(2 * k)] + [(None, None)]
+    constraints = [weights >= 0, cp.sum(weights) == 1]
+    problem = cp.Problem(objective, constraints)
+    problem.solve()
 
-    # Linear programming solution
-    res = linprog(c, A_ub=A_ub, b_ub=b_ub, A_eq=A_eq, b_eq=b_eq, bounds=bounds)
-
-    return res.x[:k]
+    return weights.value
