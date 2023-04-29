@@ -1,3 +1,7 @@
+'''
+Visualize the local weights with a time series prediction example.
+'''
+# pylint: disable=wrong-import-position
 import sys
 from pathlib import Path
 
@@ -7,15 +11,14 @@ sys.path.insert(0, str(src_path))
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-
 from statsmodels.tsa.arima.model import ARIMA
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 from prophet import Prophet
 from ensemble_learning.local_weights import local_weights
 
 # Load Air Passengers dataset
-url = "https://raw.githubusercontent.com/jbrownlee/Datasets/master/airline-passengers.csv"
-data = pd.read_csv(url, parse_dates=["Month"], index_col="Month")
+DATA_URL = "https://raw.githubusercontent.com/jbrownlee/Datasets/master/airline-passengers.csv"
+data = pd.read_csv(DATA_URL, parse_dates=["Month"], index_col="Month")
 data.index.freq = "MS"
 
 # Train-test split
@@ -35,7 +38,8 @@ ets_forecast = ets_model.forecast(len(test))
 prophet_model = Prophet()
 prophet_df = pd.DataFrame({'ds': train.index, 'y': [y[0] for y in train.values]})
 prophet_model_fit = prophet_model.fit(prophet_df)
-prophet_forecast = prophet_model_fit.predict(prophet_model_fit.make_future_dataframe(periods=len(test), freq='MS'))['yhat'][len(train):]
+prophet_forecast = prophet_model_fit.predict(
+    prophet_model_fit.make_future_dataframe(periods=len(test), freq='MS'))['yhat'][len(train):]
 
 # Apply weighted sum algorithm
 weights = np.array(

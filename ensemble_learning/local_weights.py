@@ -1,3 +1,6 @@
+'''
+`local_weights`
+'''
 import cvxpy as cp
 import numpy as np
 
@@ -23,9 +26,16 @@ def local_weights(predictions, target, alpha = 0.2, beta = 1):
     Args:
         predictions (list[float]): A list of k predictions.
         target (float): The target value.
-        alpha (float): First regularization parameter,
-        specifying 
-        beta (float): Second regularization parameter
+        alpha (float in [0, 1]): First regularization parameter,
+        specifying how much deviation from uniform weights
+        is penalized.
+        alpha=0 means that a perfect prediction
+        receives all the weight and
+        alpha=1 means that the weights are (roughly) uniform.
+
+        beta (float]): Second regularization parameter,
+        specifying how much a deviation from the target the weighted
+        sum of observations is penalized.
 
 
     Returns:
@@ -49,14 +59,19 @@ def local_weights(predictions, target, alpha = 0.2, beta = 1):
     weights.value = np.full(k, 1/k)
 
     penalty_deviation_from_uniform = cp.sum((weights - np.full(k, 1/k))**2)
-    penalty_poor_prediction = cp.sum(cp.multiply(weights, cp.abs(scaled_predictions - np.full(k, scaled_target)))) / k
+    penalty_poor_prediction = cp.sum(
+        cp.multiply(weights, cp.abs(scaled_predictions - np.full(k, scaled_target)))) / k
     absolute_error = cp.abs(cp.sum(cp.multiply(weights, scaled_predictions)) - scaled_target)
 
-    objective = cp.Minimize(alpha * penalty_deviation_from_uniform + (1-alpha) * penalty_poor_prediction + beta * absolute_error)
+    objective = cp.Minimize(
+        alpha * penalty_deviation_from_uniform +
+        (1-alpha) * penalty_poor_prediction +
+        beta * absolute_error)
 
-    constraints = [weights >= 0, cp.sum(weights) == 1]
-    problem = cp.Problem(objective, constraints)
-    problem.solve()
+    cp.Problem(
+        objective,
+        constraints=[weights >= 0, cp.sum(weights) == 1]
+    ).solve()
 
     return weights.value
 

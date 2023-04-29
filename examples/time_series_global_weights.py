@@ -1,3 +1,7 @@
+'''
+Visualize the global weights with a time series prediction example.
+'''
+# pylint: disable=wrong-import-position
 import sys
 from pathlib import Path
 
@@ -13,8 +17,8 @@ import matplotlib.pyplot as plt
 from ensemble_learning.global_weights import global_weights
 
 # Load the airline-passenger dataset
-url = 'https://raw.githubusercontent.com/jbrownlee/Datasets/master/airline-passengers.csv'
-df = pd.read_csv(url, header=0, index_col=0, parse_dates=True)
+DATA_URL = 'https://raw.githubusercontent.com/jbrownlee/Datasets/master/airline-passengers.csv'
+df = pd.read_csv(DATA_URL, header=0, index_col=0, parse_dates=True)
 
 # Split the dataset into training and test sets
 train_size = int(len(df) * 0.8)
@@ -35,8 +39,10 @@ prophet_model_fit = prophet_model.fit(prophet_df)
 
 # Make predictions for each model
 arima_predictions = arima_model_fit.forecast(len(test))
-exp_smoothing_predictions = exp_smoothing_model_fit.predict(start=len(train), end=len(train)+len(test)-1)
-prophet_predictions = prophet_model_fit.predict(prophet_model_fit.make_future_dataframe(periods=len(test), freq='MS'))['yhat'][len(train):]
+exp_smoothing_predictions = exp_smoothing_model_fit.predict(
+    start=len(train), end=len(train)+len(test)-1)
+prophet_predictions = prophet_model_fit.predict(
+    prophet_model_fit.make_future_dataframe(periods=len(test), freq='MS'))['yhat'][len(train):]
 
 # Compute the weights for the models
 predictions = np.array([arima_predictions, exp_smoothing_predictions, prophet_predictions])

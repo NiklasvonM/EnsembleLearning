@@ -1,3 +1,6 @@
+'''
+`global_weights`
+'''
 import numpy as np
 from sklearn.linear_model import LinearRegression
 
@@ -39,10 +42,10 @@ def global_weights(predictions, targets):
 
     # Check if the dimensions match
     if predictions.shape[0] != targets.shape[0]:
-        raise ValueError("The number of rows in 'predictions' should match the length of 'targets'.")
+        raise ValueError("Number of rows in 'predictions' should match the length of 'targets'.")
 
     # Fit the linear model without an intercept
-    model = LinearRegression(fit_intercept=False)
+    model = LinearRegression(fit_intercept=False, positive=True)
     model.fit(predictions, targets)
 
     coefficients = np.array(model.coef_)
