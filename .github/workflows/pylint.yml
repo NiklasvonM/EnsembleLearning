@@ -17,17 +17,10 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pep517
-        python -m pep517.build --binary --out-dir dist .
-        # Install optional dependencies
-        python -c "import toml; from pathlib import Path; \
-                   data = toml.load(Path('pyproject.toml')); \
-                   opt_deps = data.get('project', {}).get('optional-dependencies', {}); \
-                   for deps in opt_deps.values(): \
-                       for dep, ver in deps.items(): \
-                           print(f'{dep}{ver}', end=' '); \
-                  " | xargs pip install
+        pip install build
+        python -m build --wheel
         pip install dist/*.whl
+        pip install '.[examples]'
         pip install pylint
     - name: Analysing the code with pylint
       run: |
