@@ -14,7 +14,7 @@ from statsmodels.tsa.arima.model import ARIMA
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 from prophet import Prophet
 import matplotlib.pyplot as plt
-from ensemble_learning.global_weights import global_weights
+from src.ensemblelearning.global_weights import global_weights
 
 # Load the airline-passenger dataset
 DATA_URL = 'https://raw.githubusercontent.com/jbrownlee/Datasets/master/airline-passengers.csv'

@@ -3,7 +3,7 @@ Test `global_weights`
 '''
 import unittest
 import numpy as np
-from ensemble_learning.global_weights import global_weights
+from src.ensemblelearning.global_weights import global_weights
 
 class TestGlobalWeights(unittest.TestCase):
     '''

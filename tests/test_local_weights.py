@@ -3,7 +3,7 @@ Test `local_weights`
 '''
 import unittest
 import numpy as np
-from ensemble_learning.local_weights import local_weights
+from src.ensemblelearning.local_weights import local_weights
 
 class TestWeightedSumOptimization(unittest.TestCase):
     '''
