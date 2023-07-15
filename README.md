@@ -1,3 +1,5 @@
+[![Pylint](https://github.com/NiklasvonM/EnsembleLearning/actions/workflows/pylint.yml/badge.svg)](https://github.com/NiklasvonM/EnsembleLearning/actions/workflows/pylint.yml)
+
 # EnsembleLearning
 
 ## Usage
