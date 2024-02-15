@@ -1,4 +1,6 @@
-[![Pylint](https://github.com/NiklasvonM/EnsembleLearning/actions/workflows/pylint.yml/badge.svg)](https://github.com/NiklasvonM/EnsembleLearning/actions/workflows/pylint.yml)
+[![Mypy](https://github.com/NiklasvonM/EnsembleLearning/actions/workflows/mypy.yml/badge.svg)](https://github.com/NiklasvonM/EnsembleLearning/actions/workflows/mypy.yml)
+[![Ruff](https://github.com/NiklasvonM/EnsembleLearning/actions/workflows/ruff.yml/badge.svg)](https://github.com/NiklasvonM/EnsembleLearning/actions/workflows/ruff.yml)
+[![Tests](https://github.com/NiklasvonM/EnsembleLearning/actions/workflows/tests.yml/badge.svg)](https://github.com/NiklasvonM/EnsembleLearning/actions/workflows/tests.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com)
 

@@ -1,10 +1,15 @@
-'''
+"""
 `global_weights`
-'''
+"""
+
 import numpy as np
+import numpy.typing as npt
 from sklearn.linear_model import LinearRegression
 
-def global_weights(predictions, targets):
+
+def global_weights(
+    predictions: npt.NDArray[np.float64], targets: npt.NDArray[np.float64]
+) -> npt.NDArray[np.float64]:
     """
     Fit a linear model without an intercept and return the weight vector.
 
@@ -48,11 +53,11 @@ def global_weights(predictions, targets):
     model = LinearRegression(fit_intercept=False, positive=True)
     model.fit(predictions, targets)
 
-    coefficients = np.array(model.coef_)
-    coefficients = [coefficient if coefficient > 0 else 0 for coefficient in coefficients]
+    coefficients: npt.NDArray[np.float64] = np.array(model.coef_)
+    coefficients[coefficients < 0] = 0
     if set(coefficients) == set([0]):
         k = predictions.shape[1]
-        return np.full(k, 1/k)
-    weights = coefficients / np.sum(coefficients)
+        return np.full(k, 1 / k)
+    weights: npt.NDArray[np.float64] = coefficients / np.sum(coefficients)
 
     return weights
