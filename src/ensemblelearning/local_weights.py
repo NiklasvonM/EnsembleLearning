@@ -1,10 +1,14 @@
-'''
+"""
 `local_weights`
-'''
+"""
 import cvxpy as cp
 import numpy as np
+import numpy.typing as npt
 
-def local_weights(predictions, target, alpha = 0.2, beta = 1):
+
+def local_weights(
+    predictions: list[float], target: float, alpha: float = 0.2, beta: float = 1
+) -> npt.NDArray[np.float64]:
     """
     Computes the optimal weights for combining the predictions to match the target value target,
     using linear optimization with a regularization term.
@@ -46,7 +50,7 @@ def local_weights(predictions, target, alpha = 0.2, beta = 1):
 
     # Return uniform weights if all predictions and target coincide
     if len(set(predictions + [target])) == 1:
-        return np.full(k, 1/k)
+        return np.full(k, 1 / k)
 
     min_value = min(predictions + [target])
     max_value = max(predictions + [target])
@@ -56,24 +60,24 @@ def local_weights(predictions, target, alpha = 0.2, beta = 1):
 
     weights = cp.Variable(k)
     # Set the initial value of weights to the uniform distribution for a warm start.
-    weights.value = np.full(k, 1/k)
+    weights.value = np.full(k, 1 / k)
 
-    penalty_deviation_from_uniform = cp.sum((weights - np.full(k, 1/k))**2)
-    penalty_poor_prediction = cp.sum(
-        cp.multiply(weights, cp.abs(scaled_predictions - np.full(k, scaled_target)))) / k
+    penalty_deviation_from_uniform = cp.sum((weights - np.full(k, 1 / k)) ** 2)
+    penalty_poor_prediction = (
+        cp.sum(cp.multiply(weights, cp.abs(scaled_predictions - np.full(k, scaled_target)))) / k
+    )
     absolute_error = cp.abs(cp.sum(cp.multiply(weights, scaled_predictions)) - scaled_target)
 
     objective = cp.Minimize(
-        alpha * penalty_deviation_from_uniform +
-        (1-alpha) * penalty_poor_prediction +
-        beta * absolute_error)
+        alpha * penalty_deviation_from_uniform
+        + (1 - alpha) * penalty_poor_prediction
+        + beta * absolute_error
+    )
 
-    cp.Problem(
-        objective,
-        constraints=[weights >= 0, cp.sum(weights) == 1]
-    ).solve()
+    cp.Problem(objective, constraints=[weights >= 0, cp.sum(weights) == 1]).solve()
 
     return weights.value
+
 
 if __name__ == "__main__":
     w = local_weights([1, 2, 3], 2, alpha=0, beta=1)
