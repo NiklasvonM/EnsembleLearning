@@ -16,7 +16,7 @@ jobs:
     - name: Install packages
       run: pip install -r requirements_dev.txt
     - name: Run Mypy
-      run: mypy src --html-report mypy-report
+      run: mypy . --html-report mypy-report
     - name: Archive coverage artifacts
       uses: actions/upload-artifact@v4
       with:

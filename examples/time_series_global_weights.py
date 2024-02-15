@@ -4,6 +4,7 @@ Visualize the global weights with a time series prediction example.
 
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 from ensemblelearning.global_weights import global_weights
 from prophet import Prophet
@@ -44,7 +45,9 @@ def main():
 
     # Compute the weights for the models
     predictions = np.array([arima_predictions, exp_smoothing_predictions, prophet_predictions])
-    weights = global_weights(np.transpose(predictions), [y[0] for y in test.values])
+    transposed_predictions: npt.NDArray[np.float64] = np.transpose(predictions)
+    targets: npt.NDArray[np.float64] = np.array([y[0] for y in test.values])
+    weights = global_weights(predictions=transposed_predictions, targets=targets)
 
     # Print the weights for each model
     print("Weights for ARIMA, exponential smoothing, and Prophet:", weights.round(4))
